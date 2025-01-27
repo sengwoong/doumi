@@ -5,6 +5,12 @@ const nextConfig: NextConfig = {
     serverActions: {
       allowedOrigins: ["*"]
     }
+  },
+  api: {
+    bodyParser: {
+      sizeLimit: '100mb'
+    },
+    responseLimit: '100mb'
   }
 };
 

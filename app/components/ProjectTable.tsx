@@ -10,8 +10,12 @@ interface Project {
   status: 'pending' | 'completed';
 }
 
-export default function ProjectTable() {
-  const [selectedProject, setSelectedProject] = useState<string | null>(null);
+interface ProjectTableProps {
+  onSelect: (projectId: string | null) => void;
+  selected: string | null;
+}
+
+export default function ProjectTable({ onSelect, selected }: ProjectTableProps) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -32,7 +36,7 @@ export default function ProjectTable() {
   };
 
   const handleProjectSelect = (projectId: string) => {
-    setSelectedProject(projectId === selectedProject ? null : projectId);
+    onSelect(projectId === selected ? null : projectId);
   };
 
   if (isLoading) {
@@ -91,12 +95,12 @@ export default function ProjectTable() {
             <tr 
               key={project.id}
               className={`border-t border-gray-700 hover:bg-gray-700/50 transition-colors
-                ${selectedProject === project.id ? 'bg-violet-900/20' : ''}`}
+                ${selected === project.id ? 'bg-violet-900/20' : ''}`}
             >
               <td className="p-4">
                 <input
                   type="checkbox"
-                  checked={selectedProject === project.id}
+                  checked={selected === project.id}
                   onChange={() => handleProjectSelect(project.id)}
                   className="w-4 h-4 rounded border-gray-600 bg-gray-700/50 text-violet-500 
                     focus:ring-violet-500 focus:ring-offset-gray-800"

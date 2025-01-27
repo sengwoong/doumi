@@ -18,6 +18,7 @@ interface FolderStructure {
 }
 
 export default function Home() {
+  const [projectName, setProjectName] = useState('');
   const [structure, setStructure] = useState<FolderStructure | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
@@ -136,17 +137,22 @@ export default function Home() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!structure) return;
+    if (!structure || !projectName.trim()) {
+      alert('프로젝트 이름을 입력해주세요.');
+      return;
+    }
     
     setIsUploading(true);
     setUploadSuccess(false);
     
     const formData = new FormData();
+    formData.append('projectName', projectName);
     
     const addSelectedFiles = (node: FolderStructure) => {
       node.files.forEach(file => {
         if (file.selected) {
           formData.append('files', file.file);
+          formData.append('paths', file.path);
         }
       });
       node.folders.forEach(folder => addSelectedFiles(folder));
@@ -159,8 +165,9 @@ export default function Home() {
         method: 'POST',
         body: formData,
       });
-      const result = await response.json();
-      console.log(result);
+      
+      if (!response.ok) throw new Error('Upload failed');
+      
       setUploadSuccess(true);
     } catch (error) {
       console.error('Upload failed:', error);
@@ -174,7 +181,22 @@ export default function Home() {
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center p-8">
       <main className="flex flex-col gap-8 row-start-2 items-center">
         <div className="border-2 border-dashed border-gray-300 rounded-lg p-8">
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                프로젝트 이름
+              </label>
+              <input
+                type="text"
+                value={projectName}
+                onChange={(e) => setProjectName(e.target.value)}
+                placeholder="프로젝트 이름을 입력하세요"
+                className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white 
+                  placeholder-gray-400 focus:outline-none focus:border-violet-500"
+                required
+              />
+            </div>
+
             <input
               type="file"
               name="files"
@@ -188,19 +210,21 @@ export default function Home() {
                 file:bg-violet-50 file:text-violet-700
                 hover:file:bg-violet-100"
             />
+            
             {structure && (
               <>
                 <div className="mt-4 bg-gray-900 p-4 rounded-lg max-h-96 overflow-auto">
                   <div className="text-gray-200">{renderStructure(structure)}</div>
                 </div>
+
                 <button
                   type="submit"
-                  disabled={isUploading || !structure}
-                  className={`mt-4 px-4 py-2 rounded ${
-                    isUploading 
-                      ? 'bg-gray-400 cursor-not-allowed' 
-                      : 'bg-blue-500 hover:bg-blue-600'
-                  } text-white`}
+                  disabled={isUploading || !structure || !projectName.trim()}
+                  className={`w-full px-4 py-2 rounded ${
+                    isUploading || !projectName.trim()
+                      ? 'bg-gray-600 cursor-not-allowed' 
+                      : 'bg-violet-600 hover:bg-violet-700'
+                  } text-white transition-colors`}
                 >
                   {isUploading ? '업로드 중...' : '업로드'}
                 </button>

@@ -1,40 +1,38 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 export async function GET() {
   try {
-    const uploadsDir = path.join(process.cwd(), 'uploads');
-    
-    // uploads 디렉토리가 없으면 빈 배열 반환
-    if (!fs.existsSync(uploadsDir)) {
-      return NextResponse.json({ projects: [] });
-    }
+    const projects = await prisma.folder.findMany({
+      where: {
+        parentId: null // 루트 폴더만 가져옴 (프로젝트)
+      },
+      include: {
+        _count: {
+          select: { files: true }
+        }
+      }
+    });
 
-    // 디렉토리 읽기
-    const items = fs.readdirSync(uploadsDir, { withFileTypes: true });
-    const projects = items
-      .filter(item => item.isDirectory())
-      .map(dir => {
-        const projectPath = path.join(uploadsDir, dir.name);
-        const stats = fs.statSync(projectPath);
-        const files = fs.readdirSync(projectPath);
+    const formattedProjects = projects.map(project => ({
+      id: project.id,
+      name: project.name,
+      uploadDate: project.createdAt.toISOString().split('T')[0],
+      fileCount: project._count.files,
+      status: project.status || 'pending'
+    }));
 
-        return {
-          id: dir.name,
-          name: dir.name,
-          uploadDate: stats.mtime.toISOString().split('T')[0],
-          fileCount: files.length,
-          status: 'pending'
-        };
-      });
-
-    return NextResponse.json({ projects });
+    console.log('Fetched projects:', formattedProjects);
+    return NextResponse.json({ projects: formattedProjects });
   } catch (error) {
     console.error('Error fetching projects:', error);
     return NextResponse.json(
       { error: 'Failed to fetch projects' },
       { status: 500 }
     );
+  } finally {
+    await prisma.$disconnect();
   }
 } 

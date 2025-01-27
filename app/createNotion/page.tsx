@@ -1,18 +1,88 @@
 'use client';
 
+import { useState } from 'react';
 import ProjectTable from "../components/ProjectTable";
 
+interface NotionSettings {
+  title: string;
+  template: string;
+  options: {
+    serviceAnalysis: boolean;
+    apiDocs: boolean;
+    conventionCheck: boolean;
+  };
+}
 
 export default function CreateNotionPage() {
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+  const [settings, setSettings] = useState<NotionSettings>({
+    title: '',
+    template: 'default',
+    options: {
+      serviceAnalysis: false,
+      apiDocs: false,
+      conventionCheck: false
+    }
+  });
+
+  const handleSettingsChange = (
+    field: keyof NotionSettings,
+    value: string | boolean | Record<string, boolean>
+  ) => {
+    setSettings(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleOptionChange = (option: keyof NotionSettings['options']) => {
+    setSettings(prev => ({
+      ...prev,
+      options: {
+        ...prev.options,
+        [option]: !prev.options[option]
+      }
+    }));
+  };
+
+  const handleExport = async () => {
+    if (!selectedProjectId || !settings.title) {
+      alert('프로젝트와 노션 페이지 제목을 선택해주세요.');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/notion/export', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          projectId: selectedProjectId,
+          settings
+        }),
+      });
+
+      if (!response.ok) throw new Error('Export failed');
+
+      alert('노션 페이지가 생성되었습니다!');
+    } catch (error) {
+      console.error('Export error:', error);
+      alert('노션 페이지 생성 중 오류가 발생했습니다.');
+    }
+  };
+
   return (
     <div className="p-8">
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold text-white">노션 페이지 생성</h1>
           <button
-            className="px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 
-              transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 
-              focus:ring-offset-gray-900"
+            onClick={handleExport}
+            disabled={!selectedProjectId || !settings.title}
+            className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 
+              focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-gray-900
+              ${!selectedProjectId || !settings.title
+                ? 'bg-gray-600 cursor-not-allowed'
+                : 'bg-violet-600 hover:bg-violet-700 text-white'
+              }`}
           >
             노션으로 내보내기
           </button>
@@ -41,7 +111,7 @@ export default function CreateNotionPage() {
               </div>
             </div>
 
-            <ProjectTable />
+            <ProjectTable onSelect={setSelectedProjectId} selected={selectedProjectId} />
           </div>
 
           {/* 오른쪽: 노션 설정 */}
@@ -55,6 +125,8 @@ export default function CreateNotionPage() {
                 </label>
                 <input
                   type="text"
+                  value={settings.title}
+                  onChange={(e) => handleSettingsChange('title', e.target.value)}
                   placeholder="페이지 제목 입력..."
                   className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white 
                     placeholder-gray-400 focus:outline-none focus:border-violet-500"
@@ -66,6 +138,8 @@ export default function CreateNotionPage() {
                   템플릿 선택
                 </label>
                 <select
+                  value={settings.template}
+                  onChange={(e) => handleSettingsChange('template', e.target.value)}
                   className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white 
                     focus:outline-none focus:border-violet-500"
                 >
@@ -83,6 +157,8 @@ export default function CreateNotionPage() {
                   <label className="flex items-center space-x-2">
                     <input
                       type="checkbox"
+                      checked={settings.options.serviceAnalysis}
+                      onChange={() => handleOptionChange('serviceAnalysis')}
                       className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-violet-500 
                         focus:ring-violet-500 focus:ring-offset-gray-800"
                     />
@@ -91,6 +167,8 @@ export default function CreateNotionPage() {
                   <label className="flex items-center space-x-2">
                     <input
                       type="checkbox"
+                      checked={settings.options.apiDocs}
+                      onChange={() => handleOptionChange('apiDocs')}
                       className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-violet-500 
                         focus:ring-violet-500 focus:ring-offset-gray-800"
                     />
@@ -99,6 +177,8 @@ export default function CreateNotionPage() {
                   <label className="flex items-center space-x-2">
                     <input
                       type="checkbox"
+                      checked={settings.options.conventionCheck}
+                      onChange={() => handleOptionChange('conventionCheck')}
                       className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-violet-500 
                         focus:ring-violet-500 focus:ring-offset-gray-800"
                     />
