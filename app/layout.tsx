@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Link from "next/link";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,15 +20,42 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
+  modal
 }: Readonly<{
   children: React.ReactNode;
+  modal: React.ReactNode;
 }>) {
   return (
     <html lang="kr">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-black`}
       >
-        {children}
+        <div className="flex flex-col min-h-screen">
+          <header className="w-full flex items-center justify-between py-4 px-8 bg-gray-900 shadow-md">
+            <div className='flex'>
+              <h1 className="text-2xl font-bold mr-4 text-white">프로젝트 관리 플랫폼</h1>
+              <nav className="flex space-x-4">
+                <Link href="/" className="py-2 px-4 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition">홈</Link>
+                <Link href="/upload" className="py-2 px-4 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition">프로젝트</Link>
+                <Link href="/createNotion" className="py-2 px-4 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition">노션</Link>
+                <Link href="/Settings" className="py-2 px-4 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition">설정</Link>
+              </nav>
+            </div>
+            <Link 
+              href="/login" 
+              className="py-2 px-4 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition"
+              prefetch={true}
+            >
+              로그인
+            </Link>
+          </header>
+
+          <main className="flex-grow">
+            {children}
+          </main>
+
+          {modal}
+        </div>
       </body>
     </html>
   );

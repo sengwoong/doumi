@@ -171,7 +171,7 @@ export default function Home() {
   };
 
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8">
+    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center p-8">
       <main className="flex flex-col gap-8 row-start-2 items-center">
         <div className="border-2 border-dashed border-gray-300 rounded-lg p-8">
           <form onSubmit={handleSubmit}>

@@ -7,18 +7,7 @@ import Link from 'next/link';
 function Page() {
   return (
     <div className="min-h-screen bg-black text-white">
-      <header className="w-full flex items-center justify-between py-4 px-8 bg-gray-900 shadow-md">
-        <div className='flex'>
-        <h1 className="text-2xl font-bold mr-4">프로젝트 관리 플랫폼</h1>
-        <nav className="flex space-x-4">
-          <Link href="/" className="py-2 px-4 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition">홈</Link>
-          <Link href="/upload" className="py-2 px-4 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition">프로젝트</Link>
-          <Link href="/CreateNotion" className="py-2 px-4 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition">노션</Link>
-          <Link href="/Settings" className="py-2 px-4 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition">설정</Link>
-        </nav>
-        </div>
-        <button className="py-2 px-4 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition">로그인</button>
-      </header>
+
 
       <main className="flex flex-col items-center px-6 py-10">
         <div className="w-full max-w-6xl flex flex-col items-center">
