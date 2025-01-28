@@ -75,7 +75,7 @@ function Page() {
       
       <div className="grid grid-cols-2 gap-4">
         {/* 로컬 파일 목록 */}
-        <div className="border border-zinc-700 rounded p-4 bg-zinc-800">
+        <div className="border border-zinc-700 rounded p-4 bg-zinc-800 transition-all duration-300 ease-in-out">
           <h2 className="text-xl font-semibold mb-3 text-zinc-100">로컬 파일</h2>
           <div className="space-y-4">
             {files.map((file) => (
@@ -83,11 +83,16 @@ function Page() {
                 key={file.id}
                 draggable
                 onDragStart={handleDragStart(file)}
-                className="bg-zinc-700 rounded-lg p-4 hover:bg-zinc-600 transition-colors cursor-move"
+                className="bg-zinc-700 rounded-lg p-4 hover:bg-zinc-600 transform hover:scale-[1.02] hover:shadow-lg transition-all duration-200 ease-in-out cursor-move"
               >
-                <div className="font-medium text-zinc-100 mb-2">{file.name}</div>
-                <div className="text-sm text-zinc-300">ID: {file.id}</div>
-                <div className="text-sm text-zinc-300 truncate" title={file.fullPath}>
+                <div className="font-medium text-zinc-100 mb-2 transition-colors duration-200">
+                  {file.name}
+                </div>
+                <div className="text-sm text-zinc-300 transition-colors duration-200">
+                  ID: {file.id}
+                </div>
+                <div className="text-sm text-zinc-300 truncate transition-colors duration-200" 
+                  title={file.fullPath}>
                   경로: {file.fullPath}
                 </div>
               </div>
@@ -99,9 +104,9 @@ function Page() {
         <div
           onDrop={handleDrop}
           onDragOver={handleDragOver}
-          className="border-2 border-dashed border-zinc-700 rounded-lg p-4 min-h-[200px] flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 transition-colors"
+          className="border-2 border-dashed border-zinc-700 rounded-lg p-4 min-h-[200px] flex items-center justify-center bg-zinc-800 hover:bg-zinc-700 hover:border-zinc-500 transform hover:scale-[1.01] transition-all duration-300 ease-in-out"
         >
-          <div className="text-center">
+          <div className="text-center transition-transform duration-200 ease-in-out">
             <p className="text-zinc-300 mb-2">여기에 파일을 드래그하여</p>
             <p className="text-zinc-300">DB에 추가</p>
           </div>

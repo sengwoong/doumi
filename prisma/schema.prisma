@@ -17,8 +17,8 @@ model User {
   id        String    @id @default(cuid())
   email     String    @unique
   name      String?
-  folders   Folder[]
-  files     File[]
+//  folders   Folder[]
+//  files     File[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 }
@@ -32,8 +32,8 @@ model Folder {
   children  Folder[]  @relation("FolderToFolder")
   files     File[]
   status    String?   @default("pending") // "pending" | "completed"
-  userId    String
-  user      User      @relation(fields: [userId], references: [id])
+ // userId    String
+ // user      User      @relation(fields: [userId], references: [id])
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 }
@@ -45,8 +45,8 @@ model File {
   content   String?
   folderId  String
   folder    Folder   @relation(fields: [folderId], references: [id])
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
+ // userId    String
+ // user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 } 

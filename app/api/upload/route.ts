@@ -3,8 +3,13 @@ import fs from 'fs';
 import path from 'path';
 import { prisma } from '@/lib/prisma';
 
+
 export async function POST(request: Request) {
+  let uploadsDir: string;
+  
   try {
+
+
     const formData = await request.formData();
     const files = formData.getAll('files');
     const paths = formData.getAll('paths');
@@ -18,59 +23,72 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Project name is required' }, { status: 400 });
     }
 
-    // public/uploads 디렉토리에 저장하도록 수정
-    const uploadsDir = path.join(process.cwd(), 'public', 'uploads', projectName as string);
-    if (!fs.existsSync(uploadsDir)) {
-      fs.mkdirSync(uploadsDir, { recursive: true });
-    }
+    // 트랜잭션 실행
+    const result = await prisma.$transaction(async (tx) => {
+      // userId 포함하여 폴더 생성
+      const rootFolder = await tx.folder.create({
+        data: {
+          name: projectName as string,
+          path: `/uploads/${projectName}`,
 
-    const rootFolder = await prisma.folder.create({
-      data: {
-        name: projectName as string,
-        path: `/uploads/${projectName}`,  // public 경로 반영
-      }
-    });
+                }
+      });
 
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i] as File;
-      const filePath = paths[i] as string;
-      
-      // 프로젝트 폴더 내에 전체 파일 경로 생성
-      const fullPath = path.join(uploadsDir, filePath);
-      
-      // 파일이 위치할 디렉토리 경로
-      const dirPath = path.dirname(fullPath);
-      
- 
-      // 디렉토리가 없으면 생성 (상위 디렉토리 포함)
-      if (!fs.existsSync(dirPath)) {
-        fs.mkdirSync(dirPath, { recursive: true });
+      // 데이터베이스 작업 성공 후 폴더 생성
+      uploadsDir = path.join(process.cwd(), 'public', 'uploads', projectName as string);
+      if (!fs.existsSync(uploadsDir)) {
+        fs.mkdirSync(uploadsDir, { recursive: true });
       }
 
-      try {
-        // 파일 저장
+      // 파일 업로드 처리
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i] as File;
+        const filePath = paths[i] as string;
+        const fullPath = path.join(uploadsDir, filePath);
+        const dirPath = path.dirname(fullPath);
+        
+        if (!fs.existsSync(dirPath)) {
+          fs.mkdirSync(dirPath, { recursive: true });
+        }
+
         const arrayBuffer = await file.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
         fs.writeFileSync(fullPath, buffer);
-      } catch (err) {
-        console.error(`Error saving file ${filePath}:`, err);
-        throw new Error(`Failed to save file ${filePath}: ${err.message}`);
+      }
+
+      return { rootFolder };
+    }, {
+      maxWait: 10000,
+      timeout: 30000
+    });
+
+    // 트랜잭션 성공 후 응답 반환
+    return NextResponse.json({
+      success: true,
+      message: 'Files uploaded successfully',
+      folderId: result.rootFolder.id
+    });
+
+  } catch (error: any) {
+    // 안전한 에러 로깅
+    const errorMessage = error?.message || 'Unknown error occurred';
+    console.log('Upload error:', errorMessage);
+    
+    // 에러 발생 시 생성된 폴더 삭제
+    if (uploadsDir && fs.existsSync(uploadsDir)) {
+      try {
+        fs.rmSync(uploadsDir, { recursive: true, force: true });
+      } catch (deleteError) {
+        console.log('Error deleting folder:', deleteError instanceof Error ? deleteError.message : 'Unknown error');
       }
     }
 
-    return NextResponse.json({
-      success: true,
-      message: 'Files uploaded successfully'
-    });
+    // 에러 응답
+    const errorResponse = {
+      error: 'Upload failed',
+      details: errorMessage
+    };
 
-  } catch (error) {
-    console.error('Upload error:', error);
-    return NextResponse.json(
-      {
-        error: 'Upload failed',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      },
-      { status: 500 }
-    );
+    return NextResponse.json(errorResponse, { status: 500 });
   }
 }
