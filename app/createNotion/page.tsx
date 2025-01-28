@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import ProjectTable from "../components/ProjectTable";
+import { useRouter } from 'next/navigation';
 
 interface NotionSettings {
   title: string;
@@ -24,6 +25,7 @@ export default function CreateNotionPage() {
       conventionCheck: false
     }
   });
+  const router = useRouter();
 
   const handleSettingsChange = (
     field: keyof NotionSettings,
@@ -69,6 +71,10 @@ export default function CreateNotionPage() {
     }
   };
 
+  const handleProjectClick = (projectId: string) => {
+    router.push(`/projects/${projectId}`);
+  };
+
   return (
     <div className="p-8">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -111,7 +117,11 @@ export default function CreateNotionPage() {
               </div>
             </div>
 
-            <ProjectTable onSelect={setSelectedProjectId} selected={selectedProjectId} />
+            <ProjectTable 
+              onSelect={setSelectedProjectId} 
+              selected={selectedProjectId}
+              onProjectClick={handleProjectClick}
+            />
           </div>
 
           {/* 오른쪽: 노션 설정 */}

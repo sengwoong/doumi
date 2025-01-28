@@ -11,11 +11,10 @@ interface Project {
 }
 
 interface ProjectTableProps {
-  onSelect: (projectId: string | null) => void;
-  selected: string | null;
+  onProjectClick: (projectId: string) => void;
 }
 
-export default function ProjectTable({ onSelect, selected }: ProjectTableProps) {
+export default function ProjectTable({ onProjectClick }: ProjectTableProps) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -35,17 +34,12 @@ export default function ProjectTable({ onSelect, selected }: ProjectTableProps) 
     }
   };
 
-  const handleProjectSelect = (projectId: string) => {
-    onSelect(projectId === selected ? null : projectId);
-  };
-
   if (isLoading) {
     return (
       <div className="w-full overflow-x-auto bg-gray-800 rounded-lg shadow-xl">
         <table className="w-full text-left">
           <thead className="bg-gray-700">
             <tr>
-              <th className="p-4 w-16">선택</th>
               <th className="p-4">프로젝트명</th>
               <th className="p-4">업로드 날짜</th>
               <th className="p-4">파일 수</th>
@@ -55,9 +49,6 @@ export default function ProjectTable({ onSelect, selected }: ProjectTableProps) 
           <tbody>
             {[...Array(3)].map((_, i) => (
               <tr key={i} className="border-t border-gray-700">
-                <td className="p-4">
-                  <div className="w-4 h-4 bg-gray-600 rounded animate-pulse" />
-                </td>
                 <td className="p-4">
                   <div className="h-6 bg-gray-600 rounded w-32 animate-pulse" />
                 </td>
@@ -83,7 +74,6 @@ export default function ProjectTable({ onSelect, selected }: ProjectTableProps) 
       <table className="w-full text-left">
         <thead className="bg-gray-700">
           <tr>
-            <th className="p-4 w-16">선택</th>
             <th className="p-4">프로젝트명</th>
             <th className="p-4">업로드 날짜</th>
             <th className="p-4">파일 수</th>
@@ -94,18 +84,9 @@ export default function ProjectTable({ onSelect, selected }: ProjectTableProps) 
           {projects.map((project) => (
             <tr 
               key={project.id}
-              className={`border-t border-gray-700 hover:bg-gray-700/50 transition-colors
-                ${selected === project.id ? 'bg-violet-900/20' : ''}`}
+              onClick={() => onProjectClick(project.id)}
+              className="border-t border-gray-700 hover:bg-gray-700/50 transition-colors cursor-pointer"
             >
-              <td className="p-4">
-                <input
-                  type="checkbox"
-                  checked={selected === project.id}
-                  onChange={() => handleProjectSelect(project.id)}
-                  className="w-4 h-4 rounded border-gray-600 bg-gray-700/50 text-violet-500 
-                    focus:ring-violet-500 focus:ring-offset-gray-800"
-                />
-              </td>
               <td className="p-4 font-medium text-white">{project.name}</td>
               <td className="p-4 text-gray-300">{project.uploadDate}</td>
               <td className="p-4 text-gray-300">{project.fileCount} 파일</td>

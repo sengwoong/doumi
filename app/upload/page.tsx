@@ -152,7 +152,8 @@ export default function Home() {
       node.files.forEach(file => {
         if (file.selected) {
           formData.append('files', file.file);
-          formData.append('paths', file.path);
+          const relativePath = file.path.split('/').slice(1).join('/');
+          formData.append('paths', relativePath);
         }
       });
       node.folders.forEach(folder => addSelectedFiles(folder));

@@ -1,13 +1,7 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
-
-export const config = {
-  api: {
-    bodyParser: false,
-    responseLimit: '100mb',
-  },
-};
+import { prisma } from '@/lib/prisma';
 
 export async function POST(request: Request) {
   try {
@@ -20,41 +14,67 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'No files received' }, { status: 400 });
     }
 
-    // 프로젝트 디렉토리 생성
-    const projectDir = path.join(process.cwd(), 'uploads', projectName as string);
-    if (!fs.existsSync(projectDir)) {
-      fs.mkdirSync(projectDir, { recursive: true });
+    if (!projectName) {
+      return NextResponse.json({ error: 'Project name is required' }, { status: 400 });
     }
 
-    // 파일 저장
+
+
+    // 기존 파일 업로드 로직
+    const uploadsDir = path.join(process.cwd(), 'uploads', projectName as string);
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+
+
+            
+    const rootFolder = await prisma.folder.create({
+      data: {
+        name: projectName as string,
+        path: `/${projectName}`,  
+      }
+    });
+
+    
     for (let i = 0; i < files.length; i++) {
       const file = files[i] as File;
       const filePath = paths[i] as string;
       
-      // 전체 파일 경로 생성
-      const fullPath = path.join(projectDir, filePath);
-      const folderPath = path.dirname(fullPath);
-
-      // 필요한 하위 디렉토리 생성
-      if (!fs.existsSync(folderPath)) {
-        fs.mkdirSync(folderPath, { recursive: true });
+      // 프로젝트 폴더 내에 전체 파일 경로 생성
+      const fullPath = path.join(uploadsDir, filePath);
+      
+      // 파일이 위치할 디렉토리 경로
+      const dirPath = path.dirname(fullPath);
+      
+ 
+      // 디렉토리가 없으면 생성 (상위 디렉토리 포함)
+      if (!fs.existsSync(dirPath)) {
+        fs.mkdirSync(dirPath, { recursive: true });
       }
 
-      // 파일 내용을 ArrayBuffer로 변환 후 저장
-      const arrayBuffer = await file.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
-      fs.writeFileSync(fullPath, buffer);
+      try {
+        // 파일 저장
+        const arrayBuffer = await file.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        fs.writeFileSync(fullPath, buffer);
+      } catch (err) {
+        console.error(`Error saving file ${filePath}:`, err);
+        throw new Error(`Failed to save file ${filePath}: ${err.message}`);
+      }
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Files uploaded successfully' 
+    return NextResponse.json({
+      success: true,
+      message: 'Files uploaded successfully'
     });
 
   } catch (error) {
     console.error('Upload error:', error);
     return NextResponse.json(
-      { error: 'Failed to upload files', details: error.message }, 
+      {
+        error: 'Upload failed',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }

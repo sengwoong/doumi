@@ -1,0 +1,23 @@
+[33mcommit d7318f2b34350d5e304c4165c63a744831e05287[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m
+Author: sengwoong <rej287573@gmail.com>
+Date:   Mon Jan 27 21:35:11 2025 +0900
+
+    :sparkles: 로그인 모달과 로그인 페이지 개발
+
+[33mcommit 73d178672f5a5454cea0f92c5780a2ec9188311c[m
+Author: sengwoong <rej287573@gmail.com>
+Date:   Mon Jan 27 20:43:51 2025 +0900
+
+    :sparkles: 메인페이지 디자인 초안 제작
+
+[33mcommit 30c558e4c3cbd94430d82da86dd3e32497da41e3[m
+Author: sengwoong <rej287573@gmail.com>
+Date:   Sat Jan 25 21:54:28 2025 +0900
+
+    :sparkles: prisma 세팅
+
+[33mcommit 7b8d5fa749c195aee535c3ec75a43b4fadf1fbd9[m
+Author: sengwoong <rej287573@gmail.com>
+Date:   Sat Jan 25 20:49:00 2025 +0900
+
+    Initial commit from Create Next App

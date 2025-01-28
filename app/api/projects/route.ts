@@ -7,7 +7,7 @@ export async function GET() {
   try {
     const projects = await prisma.folder.findMany({
       where: {
-        parentId: null // 루트 폴더만 가져옴 (프로젝트)
+        parentId: null
       },
       include: {
         _count: {
