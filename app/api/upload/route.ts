@@ -18,24 +18,19 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Project name is required' }, { status: 400 });
     }
 
-
-
-    // 기존 파일 업로드 로직
-    const uploadsDir = path.join(process.cwd(), 'uploads', projectName as string);
+    // public/uploads 디렉토리에 저장하도록 수정
+    const uploadsDir = path.join(process.cwd(), 'public', 'uploads', projectName as string);
     if (!fs.existsSync(uploadsDir)) {
       fs.mkdirSync(uploadsDir, { recursive: true });
     }
 
-
-            
     const rootFolder = await prisma.folder.create({
       data: {
         name: projectName as string,
-        path: `/${projectName}`,  
+        path: `/uploads/${projectName}`,  // public 경로 반영
       }
     });
 
-    
     for (let i = 0; i < files.length; i++) {
       const file = files[i] as File;
       const filePath = paths[i] as string;
