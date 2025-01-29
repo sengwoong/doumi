@@ -7,8 +7,8 @@ export const {
   signIn,
 } = NextAuth({
   pages: {
-    signIn: '/sigin',
-    newUser: '/login',
+    signIn: '/login',
+    newUser: '/signup',
   },
   session: {
     strategy: 'jwt',
@@ -17,18 +17,25 @@ export const {
     CredentialsProvider({
       async authorize(credentials) {
         try {
-          console.log('credentials', credentials);
-          
-          // user 정보는 credentials.user에서 파싱
-          const user = JSON.parse(credentials.user as string);
-          console.log('Parsed user:', user);
+          // credentials에서 직접 email과 password를 사용
+          const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/login`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email: credentials?.email,
+              password: credentials?.password,
+            }),
+          });
 
-          return {
-            id: user.id,
-            email: user.email,
-            username: user.username,
-            role: user.role,
-          };
+          if (!response.ok) {
+            return null;
+          }
+
+          const user = await response.json();
+          return user;
+          
         } catch (error) {
           console.error('Auth error:', error);
           return null;
