@@ -206,10 +206,10 @@ export default function Home() {
               onChange={handleFileSelect}
               className="block w-full text-sm text-gray-500
                 file:mr-4 file:py-2 file:px-4
-                file:rounded-full file:border-0
+                file:rounded-lg file:border-0
                 file:text-sm file:font-semibold
-                file:bg-violet-50 file:text-violet-700
-                hover:file:bg-violet-100"
+                file:bg-gray-800 file:text-white
+                hover:file:bg-gray-700"
             />
             
             {structure && (
@@ -221,17 +221,17 @@ export default function Home() {
                 <button
                   type="submit"
                   disabled={isUploading || !structure || !projectName.trim()}
-                  className={`w-full px-4 py-2 rounded ${
+                  className={`nav-button w-full ${
                     isUploading || !projectName.trim()
-                      ? 'bg-gray-600 cursor-not-allowed' 
-                      : 'bg-violet-600 hover:bg-violet-700'
-                  } text-white transition-colors`}
+                      ? 'opacity-50 cursor-not-allowed hover:bg-gray-800'
+                      : ''
+                  }`}
                 >
                   {isUploading ? '업로드 중...' : '업로드'}
                 </button>
 
                 {uploadSuccess && (
-                  <div className="mt-4 p-3 bg-green-100 text-green-700 rounded">
+                  <div className="mt-4 p-3 bg-gray-800 text-green-400 rounded-lg text-center">
                     업로드 성공!
                   </div>
                 )}

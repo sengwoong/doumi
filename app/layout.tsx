@@ -31,19 +31,19 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-black`}
       >
         <div className="flex flex-col min-h-screen">
-          <header className="w-full flex items-center justify-between py-4 px-8 bg-gray-900 shadow-md">
-            <div className='flex'>
-              <h1 className="text-2xl font-bold mr-4 text-white">프로젝트 관리 플랫폼</h1>
-              <nav className="flex space-x-4">
-                <Link href="/" className="py-2 px-4 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition">홈</Link>
-                <Link href="/upload" className="py-2 px-4 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition">프로젝트</Link>
-                <Link href="/createNotion" className="py-2 px-4 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition">노션</Link>
-                <Link href="/Settings" className="py-2 px-4 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition">설정</Link>
+          <header className="w-full flex items-center justify-between py-6 px-8 bg-gray-900 shadow-md">
+            <div className='flex items-center gap-8'>
+              <h1 className="text-2xl font-bold text-white whitespace-nowrap">프로젝트 관리 플랫폼</h1>
+              <nav className="flex gap-2">
+                <Link href="/" className="nav-button">홈</Link>
+                <Link href="/upload" className="nav-button">프로젝트</Link>
+                <Link href="/createNotion" className="nav-button">노션</Link>
+                <Link href="/Settings" className="nav-button">설정</Link>
               </nav>
             </div>
             <Link 
               href="/login" 
-              className="py-2 px-4 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition"
+              className="nav-button"
               prefetch={true}
             >
               로그인

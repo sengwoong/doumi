@@ -83,12 +83,11 @@ export default function CreateNotionPage() {
           <button
             onClick={handleExport}
             disabled={!selectedProjectId || !settings.title}
-            className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 
-              focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-gray-900
-              ${!selectedProjectId || !settings.title
-                ? 'bg-gray-600 cursor-not-allowed'
-                : 'bg-violet-600 hover:bg-violet-700 text-white'
-              }`}
+            className={`nav-button min-w-[160px] ${
+              !selectedProjectId || !settings.title
+                ? 'opacity-50 cursor-not-allowed hover:bg-gray-800'
+                : ''
+            }`}
           >
             노션으로 내보내기
           </button>
