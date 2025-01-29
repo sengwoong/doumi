@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
+import AuthSession from "@/app/_components/AuthSession";
+import AuthButton from "./_components/AuthButton";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,6 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="kr">
+      <AuthSession>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-black`}
       >
@@ -41,13 +44,7 @@ export default function RootLayout({
                 <Link href="/Settings" className="nav-button">설정</Link>
               </nav>
             </div>
-            <Link 
-              href="/login" 
-              className="nav-button"
-              prefetch={true}
-            >
-              로그인
-            </Link>
+            <AuthButton />
           </header>
 
           <main className="flex-grow">
@@ -57,6 +54,7 @@ export default function RootLayout({
           {modal}
         </div>
       </body>
+      </AuthSession>
     </html>
   );
 }

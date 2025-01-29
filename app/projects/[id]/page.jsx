@@ -196,7 +196,7 @@ function Page() {
         </div>
 
         {/* 드롭 영역들 */}
-        <div className="space-y-4 fixed top-20 right-16 w-[400px]">
+        <div className="space-y-4 fixed top-40 right-40 w-[400px]">
           <h2 className="text-xl font-semibold text-zinc-100 mb-6">파일 분류</h2>
           <div className="space-y-6">
             <DropZone 

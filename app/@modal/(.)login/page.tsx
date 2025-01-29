@@ -27,6 +27,15 @@ export default function LoginModal() {
               </svg>
             </button>
             <LoginForm />
+            <p className="text-gray-400 mb-6">
+              계정이 없으신가요?{' '}
+              <button 
+                onClick={() => router.push('/signup')}
+                className="text-violet-400 hover:text-violet-300 underline"
+              >
+                회원가입
+              </button>
+            </p>
           </div>
         </div>
       </div>
