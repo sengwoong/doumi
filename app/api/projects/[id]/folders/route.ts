@@ -76,8 +76,6 @@ export async function GET(request: Request) {
       };
 
       await getAllItems(uploadsPath);
-      console.log("Found folders:", localFolders);
-      console.log("Found files:", localFiles);
       
     } catch (error) {
       console.log('로컬 파일을 찾을 수 없습니다:', error);

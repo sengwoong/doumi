@@ -124,76 +124,80 @@ export default function CreateNotionPage() {
             />
           </div>
 
-          {/* 오른쪽: 노션 설정 */}
-          <div className="bg-gray-800/50 p-6 rounded-xl space-y-6">
-            <h2 className="text-lg font-semibold text-white">노션 설정</h2>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  노션 페이지 제목
-                </label>
-                <input
-                  type="text"
-                  value={settings.title}
-                  onChange={(e) => handleSettingsChange('title', e.target.value)}
-                  placeholder="페이지 제목 입력..."
-                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white 
-                    placeholder-gray-400 focus:outline-none focus:border-violet-500"
-                />
-              </div>
+          {/* 오른쪽: 노션 설정 (Fixed) */}
+          <div className="lg:block">
+            <div className="fixed w-[calc((100vw-8rem)/3-1rem)] max-w-md">
+              <div className="bg-gray-800/50 p-6 rounded-xl space-y-6">
+                <h2 className="text-lg font-semibold text-white">노션 설정</h2>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      노션 페이지 제목
+                    </label>
+                    <input
+                      type="text"
+                      value={settings.title}
+                      onChange={(e) => handleSettingsChange('title', e.target.value)}
+                      placeholder="페이지 제목 입력..."
+                      className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white 
+                        placeholder-gray-400 focus:outline-none focus:border-violet-500"
+                    />
+                  </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  템플릿 선택
-                </label>
-                <select
-                  value={settings.template}
-                  onChange={(e) => handleSettingsChange('template', e.target.value)}
-                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white 
-                    focus:outline-none focus:border-violet-500"
-                >
-                  <option value="default">기본 템플릿</option>
-                  <option value="simple">심플 템플릿</option>
-                  <option value="detailed">상세 템플릿</option>
-                </select>
-              </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      템플릿 선택
+                    </label>
+                    <select
+                      value={settings.template}
+                      onChange={(e) => handleSettingsChange('template', e.target.value)}
+                      className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white 
+                        focus:outline-none focus:border-violet-500"
+                    >
+                      <option value="default">기본 템플릿</option>
+                      <option value="simple">심플 템플릿</option>
+                      <option value="detailed">상세 템플릿</option>
+                    </select>
+                  </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">
-                  추가 옵션
-                </label>
-                <div className="space-y-2">
-                  <label className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={settings.options.serviceAnalysis}
-                      onChange={() => handleOptionChange('serviceAnalysis')}
-                      className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-violet-500 
-                        focus:ring-violet-500 focus:ring-offset-gray-800"
-                    />
-                    <span className="text-gray-300">서비스 분석 포함</span>
-                  </label>
-                  <label className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={settings.options.apiDocs}
-                      onChange={() => handleOptionChange('apiDocs')}
-                      className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-violet-500 
-                        focus:ring-violet-500 focus:ring-offset-gray-800"
-                    />
-                    <span className="text-gray-300">api 문서화 포함</span>
-                  </label>
-                  <label className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={settings.options.conventionCheck}
-                      onChange={() => handleOptionChange('conventionCheck')}
-                      className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-violet-500 
-                        focus:ring-violet-500 focus:ring-offset-gray-800"
-                    />
-                    <span className="text-gray-300">컨벤션 체크 포함</span>
-                  </label>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      추가 옵션
+                    </label>
+                    <div className="space-y-2">
+                      <label className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          checked={settings.options.serviceAnalysis}
+                          onChange={() => handleOptionChange('serviceAnalysis')}
+                          className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-violet-500 
+                            focus:ring-violet-500 focus:ring-offset-gray-800"
+                        />
+                        <span className="text-gray-300">서비스 분석 포함</span>
+                      </label>
+                      <label className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          checked={settings.options.apiDocs}
+                          onChange={() => handleOptionChange('apiDocs')}
+                          className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-violet-500 
+                            focus:ring-violet-500 focus:ring-offset-gray-800"
+                        />
+                        <span className="text-gray-300">api 문서화 포함</span>
+                      </label>
+                      <label className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          checked={settings.options.conventionCheck}
+                          onChange={() => handleOptionChange('conventionCheck')}
+                          className="w-4 h-4 rounded border-gray-600 bg-gray-700 text-violet-500 
+                            focus:ring-violet-500 focus:ring-offset-gray-800"
+                        />
+                        <span className="text-gray-300">컨벤션 체크 포함</span>
+                      </label>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

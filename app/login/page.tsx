@@ -29,6 +29,15 @@ export default function LoginPage() {
             </div>
           </div>
         </div>
+
+        {/* Fixed Drone Kid */}
+        <div className="fixed right-0 bottom-0 w-64 h-64 pointer-events-none">
+          <img 
+            src="/drone-kid.png" 
+            alt="Drone Kid" 
+            className="w-full h-full object-contain"
+          />
+        </div>
       </div>
     );
   }

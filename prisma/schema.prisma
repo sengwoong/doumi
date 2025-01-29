@@ -39,14 +39,33 @@ model Folder {
 }
 
 model File {
-  id        String   @id @default(cuid())
-  name      String
-  path      String
-  content   String?
-  folderId  String
-  folder    Folder   @relation(fields: [folderId], references: [id])
- // userId    String
- // user      User     @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-} 
+  id           String    @id @default(cuid())
+  name         String
+  path         String
+  type         String
+  folderId     String
+  folder       Folder    @relation(fields: [folderId], references: [id])
+  packageName  String?
+  className    String?
+  dependencies String?   // JSON string for dependencies
+  methods      Method[]  // 1:N relation with Method
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Method {
+  id            String   @id @default(cuid())
+  methodName    String?
+  returnType    String?
+  parameters    String?
+  httpMethod    String?  // Controller용
+  path          String?  // Controller용
+  errorMessage  String?  // Exception용
+  errorCode     String?  // Exception용
+  exceptionType String?  // Exception용
+  fullMethod    String?
+  fileId        String
+  file          File     @relation(fields: [fileId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
