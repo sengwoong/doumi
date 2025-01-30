@@ -17,6 +17,7 @@ export const {
     CredentialsProvider({
       async authorize(credentials) {
         try {
+          console.log('credentials:', credentials);
           // credentials에서 직접 email과 password를 사용
           const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/login`, {
             method: "POST",

@@ -3,6 +3,7 @@
 import { useFormStatus, useFormState } from 'react-dom';
 import Link from 'next/link';
 import { signup } from '@/app/_components/_lib/signup';
+import { useRouter } from 'next/navigation';
 
 function showMessage(message: string | null | undefined) {
   if (message === 'no_username') {
@@ -21,8 +22,26 @@ function showMessage(message: string | null | undefined) {
 }
 
 export default function SignupForm() {
+  const router = useRouter();
   const [state, formAction] = useFormState(signup, { message: null });
   const { pending } = useFormStatus();
+
+  // state 변경을 감지하여 리다이렉트 처리
+  if (state?.message === 'success') {
+    router.push('/home');
+    router.refresh();
+  }
+
+  const handleSubmit = async (formData: FormData) => {
+    const result = await signup({ message: null }, formData);
+    console.log('result:', result);
+    if (result?.message === 'success') {
+      router.push('/home');
+      router.refresh();
+    } else {
+      console.error(result?.message);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -104,9 +123,9 @@ export default function SignupForm() {
             {pending ? '가입 중...' : '가입하기'}
           </button>
 
-          {state?.message && (
+          {state?.message && state.message !== 'success' && (
             <div className="mt-4 p-4 bg-red-500/10 border border-red-500 rounded-lg text-red-500">
-              {showMessage(state.message)}
+              {state.message}
             </div>
           )}
         </div>

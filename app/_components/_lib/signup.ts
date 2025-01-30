@@ -1,7 +1,7 @@
 "use server";
 
-import {redirect} from "next/navigation";
-import {signIn} from "@/app/auth";
+import { AuthError } from "next-auth";
+import { signIn } from "@/app/auth";
 
 export async function signup(prevState: { message: string | null }, formData: FormData) {
   if (!formData.get('username') || !(formData.get('username') as string)?.trim()) {
@@ -15,7 +15,8 @@ export async function signup(prevState: { message: string | null }, formData: Fo
   }
 
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users`, {
+    // 1. 회원가입 API 호출
+    const signupResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users`, {
       method: 'POST',
       body: JSON.stringify({
         username: formData.get('username'),
@@ -28,22 +29,12 @@ export async function signup(prevState: { message: string | null }, formData: Fo
       },
     });
 
-    // 응답 내용 로깅
-    const responseText = await response.text();
-    console.log('Response status:', response.status);
-    console.log('Response body:', responseText);
-    console.log('Response formData.get(password):',formData.get('password'));
-
-    
-    if (response.status === 403) {
-      return {message: 'user_exists'};
-    } else if (!response.ok) {
-      console.error('Error response:', responseText);
-      return { message: `Server error: ${response.status}` };
+    if (!signupResponse.ok) {
+      const error = await signupResponse.text();
+      return { message: error };
     }
-    
 
-    // 먼저 로그인 API 직접 호출
+    // 2. 로그인 API 호출
     const loginResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/users/login`, {
       method: 'POST',
       headers: {
@@ -55,23 +46,23 @@ export async function signup(prevState: { message: string | null }, formData: Fo
       }),
     });
 
-    const loginData = await loginResponse.json();
-
     if (!loginResponse.ok) {
-      console.error('Login failed:', loginData.error);
-      return;
+      return { message: '로그인에 실패했습니다.' };
     }
 
-    // 로그인 API 성공 후 signIn 호출 (비밀번호 제외)
+    // 3. NextAuth signIn 호출
     const result = await signIn("credentials", {
-      user: JSON.stringify(loginData), 
+      email: formData.get('email') as string,
+      password: formData.get('password') as string,
       redirect: false,
-      callbackUrl: '/'
     });
 
-    if (result?.ok) {
-      redirect('/');
+    if (result?.error) {
+      return { message: result.error };
     }
+
+    return { message: 'success', redirect: '/home' };
+
   } catch (error) {
     console.error('Signup error:', error);
     return { message: error.message };
