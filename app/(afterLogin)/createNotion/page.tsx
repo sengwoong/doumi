@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import ProjectTable from "../_components/ProjectTable";
+
 import { useRouter } from 'next/navigation';
+import ProjectTable from '@/app/_components/ProjectTable';
 
 interface NotionSettings {
   title: string;
@@ -116,7 +117,7 @@ export default function CreateNotionPage() {
               </div>
             </div>
 
-            <ProjectTable 
+            <ProjectTable
               onSelect={setSelectedProjectId} 
               selected={selectedProjectId}
               onProjectClick={handleProjectClick}
