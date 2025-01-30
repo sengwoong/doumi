@@ -1,27 +1,41 @@
-import { auth } from "./auth"
+import { authMiddleware } from "@/auth"
 import { NextResponse } from "next/server";
 import { type NextRequest } from 'next/server'
 
 export default async function middleware(request: NextRequest) {
-    const session = await auth();
+    const session = await authMiddleware(request);
     
-    // 로그인되지 않은 경우
-    if (!session) {
-        // 현재 접근하려는 URL을 인코딩하여 리다이렉트 후 돌아올 수 있게 함
+    // 로그인/회원가입 페이지 경로 확인
+    const isAuthPage = request.nextUrl.pathname === '/login' || 
+                      request.nextUrl.pathname === '/signup' ||
+                      request.nextUrl.pathname === '/register';
+
+    if (session && isAuthPage) {
+        return NextResponse.redirect(new URL('/home', request.url));
+    }
+    
+    const isProtectedRoute = config.matcher.some(pattern => {
+        const regex = new RegExp(`^${pattern.replace('*', '.*')}$`);
+        return regex.test(request.nextUrl.pathname);
+    });
+
+    if (!session && isProtectedRoute) {
         const redirectUrl = new URL('/login', request.url);
-        redirectUrl.searchParams.append('callbackUrl', request.url);
         return NextResponse.redirect(redirectUrl);
     }
 
     return NextResponse.next();
 }
 
+// See "Matching Paths" below to learn more
 export const config = {
-    matcher: [
-        '/upload/:path*',
-        '/createNotion/:path*',
-        '/projects/:path*',
-        '/settings/:path*',
-        '/admin/:path*'
-    ]
+  matcher: [
+    '/createNotion/:path*',
+    '/home/:path*',
+    '/projects/:path*',
+    '/upload/:path*',
+    '/login',
+    '/signup',
+    '/register'
+  ]
 }

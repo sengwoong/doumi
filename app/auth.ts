@@ -1,5 +1,6 @@
 import NextAuth from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials";
+import { NextRequest } from "next/server"
 
 export const {
   handlers: { GET, POST },
@@ -57,3 +58,9 @@ export const {
     }
   }
 });
+
+// authMiddleware 함수 추가
+export const authMiddleware = async (request: NextRequest) => {
+    const session = await auth();
+    return session;
+}

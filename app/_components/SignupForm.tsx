@@ -4,6 +4,7 @@ import { useFormStatus, useFormState } from 'react-dom';
 import Link from 'next/link';
 import { signup } from '@/app/_components/_lib/signup';
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 function showMessage(message: string | null | undefined) {
   if (message === 'no_username') {
@@ -26,22 +27,14 @@ export default function SignupForm() {
   const [state, formAction] = useFormState(signup, { message: null });
   const { pending } = useFormStatus();
 
-  // state 변경을 감지하여 리다이렉트 처리
-  if (state?.message === 'success') {
-    router.push('/home');
-    router.refresh();
-  }
-
-  const handleSubmit = async (formData: FormData) => {
-    const result = await signup({ message: null }, formData);
-    console.log('result:', result);
-    if (result?.message === 'success') {
-      router.push('/home');
-      router.refresh();
-    } else {
-      console.error(result?.message);
+  useEffect(() => {
+    if (state?.message === 'success') {
+      router.back();
+      setTimeout(() => {
+        router.push('/home');
+      }, 100);
     }
-  };
+  }, [state, router]);
 
   return (
     <div className="space-y-6">
