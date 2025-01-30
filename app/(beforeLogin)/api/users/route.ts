@@ -52,7 +52,7 @@ export async function POST(req: Request) {
     return NextResponse.json(userWithoutPassword);
     
   } catch (error) {
-    console.error('Signup error:', error);
+    console.error('Signup error details:', error);
     return NextResponse.json(
       { error: '회원가입 중 오류가 발생했습니다.' },
       { status: 500 }

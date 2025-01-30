@@ -1,6 +1,7 @@
 'use client';
 
-import LoginForm from '@/app/_components/LoginForm';
+import LoginForm from "@/app/_components/LoginForm";
+import Link from "next/link";
 
 export default function LoginPage() {
   return (

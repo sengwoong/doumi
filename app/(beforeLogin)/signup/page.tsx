@@ -1,9 +1,8 @@
 'use client';
 
-import { useFormStatus, useFormState } from 'react-dom';
-import Link from 'next/link';
-import { signup } from '@/app/_components/_lib/signup';
-import SignupForm from '@/app/_components/SignupForm';
+import SignupForm from "@/app/_components/SignupForm";
+
+
 
 export default function SignupPage() {
   return (

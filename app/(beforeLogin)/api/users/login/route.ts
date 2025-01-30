@@ -15,7 +15,8 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
-
+    console.log('email', email);
+    console.log('password', password);
     // 사용자 찾기
     const user = await prisma.user.findUnique({
       where: { email },
