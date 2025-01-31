@@ -1,8 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import ProjectTable from '@/app/_components/ProjectTable';
 
 interface NotionSettings {
@@ -16,7 +15,10 @@ interface NotionSettings {
 }
 
 export default function CreateNotionPage() {
-  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const projectId = searchParams.get('projectId');
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(projectId);
+  const [projectName, setProjectName] = useState('');
   const [settings, setSettings] = useState<NotionSettings>({
     title: '',
     template: 'default',
@@ -27,6 +29,21 @@ export default function CreateNotionPage() {
     }
   });
   const router = useRouter();
+
+  useEffect(() => {
+    if (projectId) {
+      fetch(`/api/projects/${projectId}`)
+        .then(res => res.json())
+        .then(data => {
+          setProjectName(data.name);
+          setSettings(prev => ({
+            ...prev,
+            title: `${data.name} 분석 문서`
+          }));
+        })
+        .catch(console.error);
+    }
+  }, [projectId]);
 
   const handleSettingsChange = (
     field: keyof NotionSettings,
@@ -97,31 +114,38 @@ export default function CreateNotionPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* 왼쪽: 프로젝트 선택 */}
           <div className="lg:col-span-2 bg-gray-800/50 p-6 rounded-xl space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-lg font-semibold text-white">프로젝트 선택</h2>
-              <div className="flex items-center space-x-4">
-                <input
-                  type="text"
-                  placeholder="프로젝트 검색..."
-                  className="px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white 
-                    placeholder-gray-400 focus:outline-none focus:border-violet-500"
-                />
-                <select
-                  className="px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white 
-                    focus:outline-none focus:border-violet-500"
-                >
-                  <option value="all">모든 상태</option>
-                  <option value="pending">제작중</option>
-                  <option value="completed">완료</option>
-                </select>
+            {projectId ? (
+              <div className="text-lg font-semibold text-white">
+                선택된 프로젝트: {projectName}
               </div>
-            </div>
-
-            <ProjectTable
-              onSelect={setSelectedProjectId} 
-              selected={selectedProjectId}
-              onProjectClick={handleProjectClick}
-            />
+            ) : (
+              <>
+                <div className="flex justify-between items-center">
+                  <h2 className="text-lg font-semibold text-white">프로젝트 선택</h2>
+                  <div className="flex items-center space-x-4">
+                    <input
+                      type="text"
+                      placeholder="프로젝트 검색..."
+                      className="px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white 
+                        placeholder-gray-400 focus:outline-none focus:border-violet-500"
+                    />
+                    <select
+                      className="px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white 
+                        focus:outline-none focus:border-violet-500"
+                    >
+                      <option value="all">모든 상태</option>
+                      <option value="pending">제작중</option>
+                      <option value="completed">완료</option>
+                    </select>
+                  </div>
+                </div>
+                <ProjectTable
+                  onSelect={setSelectedProjectId} 
+                  selected={selectedProjectId}
+                  onProjectClick={handleProjectClick}
+                />
+              </>
+            )}
           </div>
 
           {/* 오른쪽: 노션 설정 (Fixed) */}

@@ -28,11 +28,7 @@ export default function RootLayout({
   modal: React.ReactNode;
 }>) {
   return (
-    <html lang="kr">
 
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-black`}
-      >
         <div className="flex flex-col min-h-screen">
           <header className="w-full flex items-center justify-between py-6 px-8 bg-gray-900 shadow-md">
             <div className='flex items-center gap-8'>
@@ -41,7 +37,7 @@ export default function RootLayout({
                 <Link href="/" className="nav-button">홈</Link>
                 <Link href="/upload" className="nav-button">프로젝트</Link>
                 <Link href="/createNotion" className="nav-button">노션</Link>
-                <Link href="/Settings" className="nav-button">설정</Link>
+                <Link href="/settings" className="nav-button">설정</Link>
               </nav>
             </div>
             <AuthButton />
@@ -53,7 +49,6 @@ export default function RootLayout({
 
           {modal}
         </div>
-      </body>
-    </html>
+
   );
 }

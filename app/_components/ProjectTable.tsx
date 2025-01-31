@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import ProjectContextMenu from './ProjectContextMenu';
 
 interface Project {
   id: string;
@@ -17,10 +18,24 @@ interface ProjectTableProps {
 export default function ProjectTable({ onProjectClick }: ProjectTableProps) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [contextMenu, setContextMenu] = useState<{
+    x: number;
+    y: number;
+    projectId: string;
+  } | null>(null);
 
   useEffect(() => {
     fetchProjects();
   }, []);
+
+  const handleContextMenu = (e: React.MouseEvent, projectId: string) => {
+    e.preventDefault();
+    setContextMenu({
+      x: e.clientX,
+      y: e.clientY,
+      projectId
+    });
+  };
 
   const fetchProjects = async () => {
     try {
@@ -85,6 +100,7 @@ export default function ProjectTable({ onProjectClick }: ProjectTableProps) {
             <tr 
               key={project.id}
               onClick={() => onProjectClick(project.id)}
+              onContextMenu={(e) => handleContextMenu(e, project.id)}
               className="border-t border-gray-700 hover:bg-gray-700/50 transition-colors cursor-pointer"
             >
               <td className="p-4 font-medium text-white">{project.name}</td>
@@ -104,6 +120,16 @@ export default function ProjectTable({ onProjectClick }: ProjectTableProps) {
           ))}
         </tbody>
       </table>
+
+      {/* 컨텍스트 메뉴 */}
+      {contextMenu && (
+        <ProjectContextMenu
+          projectId={contextMenu.projectId}
+          x={contextMenu.x}
+          y={contextMenu.y}
+          onClose={() => setContextMenu(null)}
+        />
+      )}
     </div>
   );
 } 

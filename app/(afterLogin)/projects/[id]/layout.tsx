@@ -6,9 +6,15 @@ export default function ProjectLayout({
   modal: React.ReactNode
 }) {
   return (
-    <div className="relative min-h-screen">
-      {children}
-      {modal}
-    </div>
+    <section className="relative min-h-screen">
+      <div className="main-content">
+        {children}
+      </div>
+      {modal && (
+        <div className="modal-container">
+          {modal}
+        </div>
+      )}
+    </section>
   );
 }
