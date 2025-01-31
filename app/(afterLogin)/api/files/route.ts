@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import prisma  from '@/lib/prisma';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -326,28 +326,8 @@ export async function POST(request: Request) {
       analyzer.analyze(method)
     ).filter(Boolean) || [];
 
-    console.log('Final methodsData:', methodsData);  // 최종 메소드 데이터 로깅
 
-    // DB에 저장될 데이터만 로깅
-    console.log('DB 저장 데이터:', {
-      file: {
-        name: body.name,
-        path: body.path,
-        type: body.type,
-        folderId: body.folderId,
-        packageName: analysis.analysis.packageName,
-        className: analysis.analysis.className,
-      },
-      methods: methodsData.map(method => ({
-        name: method.name,
-        returnType: method.returnType,
-        parameters: method.parameters,
-        httpMethod: method.httpMethod,
-        path: method.path,
-        errorMessage: method.errorMessage,
-        errorCode: method.errorCode,
-      }))
-    });
+
 
     const result = await prisma.$transaction(async (prisma) => {
       const file = await prisma.file.create({

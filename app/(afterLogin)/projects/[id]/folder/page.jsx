@@ -11,7 +11,7 @@ function Page() {
   useEffect(() => {
     const fetchProject = async () => {
       try {
-        const response = await fetch(`/api/projects/${projectId}/folders`);
+        const response = await fetch(`/api/projects/${projectId}/localfolders`);
         const data = await response.json();
         
         if (data.folder) {
@@ -52,7 +52,7 @@ function Page() {
         throw new Error('Failed to save file');
       }
 
-      const refreshResponse = await fetch(`/api/projects/${projectId}/folders`);
+      const refreshResponse = await fetch(`/api/projects/${projectId}/localfolders`);
       const refreshData = await refreshResponse.json();
       setFiles(refreshData.localFiles || []);
       
