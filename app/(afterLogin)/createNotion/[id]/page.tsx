@@ -14,7 +14,7 @@ interface ControllerData {
   name: string;
   purpose: string;
   returnValue: string;
-  validation: string;  // 유효성 검사 항목
+  validation: string;  // 유효성 검사 항목  
 }
 
 interface ErrorData {
@@ -93,9 +93,56 @@ export default function NotionDetailPage() {
     alert('저장되었습니다!');
   };
 
-  const handleSubmit = () => {
-    // 노션으로 전송 로직
-    alert('노션으로 전송되었습니다!');
+  const handleSubmit = async () => {
+    try {
+      // 노션에 보낼 데이터 구조화
+      const notionData = {
+        services: serviceData.map(service => ({
+          name: service.name,
+          purpose: service.purpose,
+          returnValue: service.returnValue,
+          flowChart: service.flowChart
+        })),
+        controllers: controllerData.map(controller => ({
+          name: controller.name,
+          purpose: controller.purpose,
+          returnValue: controller.returnValue,
+          validation: controller.validation
+        })),
+        errors: errorData.map(error => ({
+          name: error.name,
+          purpose: error.purpose,
+          message: error.message
+        })),
+        variables: variableData.map(variable => ({
+          name: variable.name,
+          location: variable.location,
+          purpose: variable.purpose,
+          properties: variable.properties
+        }))
+      };
+
+      // 노션 API 엔드포인트로 데이터 전송
+      const response = await fetch('/api/notion', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(notionData)
+      });
+
+      if (!response.ok) {
+        throw new Error('노션 페이지 생성에 실패했습니다.');
+      }
+
+      const result = await response.json();
+      alert('노션 페이지가 생성되었습니다!');
+      // 생성된 노션 페이지로 이동 (선택사항)
+      window.open(result.url, '_blank');
+    } catch (error) {
+      console.error('노션 전송 중 오류 발생:', error);
+      alert('노션 페이지 생성 중 오류가 발생했습니다.');
+    }
   };
 
   return (

@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@notionhq/client": "^2.2.15",
     "@plasmicapp/cli": "^0.1.335",
     "@plasmicapp/loader-nextjs": "^1.0.410",
     "@plasmicapp/react-web": "^0.2.361",
