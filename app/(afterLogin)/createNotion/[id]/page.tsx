@@ -8,6 +8,8 @@ interface ServiceData {
   purpose: string;
   returnValue: string;
   flowChart: string;  // 서비스 흐름도
+  inputDto: string;    // 단일 입력 DTO
+  outputDto: string;   // 단일 출력 DTO
 }
 
 interface ControllerData {
@@ -15,6 +17,8 @@ interface ControllerData {
   purpose: string;
   returnValue: string;
   validation: string;  // 유효성 검사 항목  
+  requestDto: string;   // 단일 요청 DTO
+  responseDto: string;  // 단일 응답 DTO
 }
 
 interface ErrorData {
@@ -37,15 +41,19 @@ export default function NotionDetailPage() {
       name: 'createPost', 
       purpose: '새로운 게시글을 생성하고 저장',
       returnValue: 'Post',
-      flowChart: '1. postId 유효성 검사\n2. 사용자 권한 확인\n3. 게시글 저장\n4. 결과 반환'
+      flowChart: '1. postId 유효성 검사\n2. 사용자 권한 확인\n3. 게시글 저장\n4. 결과 반환',
+      inputDto: 'PostCreateReq',    // 단일 값으로 변경
+      outputDto: 'Post'            // 단일 값으로 변경
     }
   ]);
   const [controllerData, setControllerData] = useState<ControllerData[]>([
     { 
       name: 'createPost', 
-      purpose: '포스트 생성을 위한 컨트롤러',  // 더 구체적인 목적 설명
+      purpose: '포스트 생성을 위한 컨트롤러',
       returnValue: 'ResponseEntity<Post>',
-      validation: '- title: 최소 2자\n- content: 최소 10자\n- category: Not Null'
+      validation: '- title: 최소 2자\n- content: 최소 10자\n- category: Not Null',
+      requestDto: 'PostCreateReq',   // 단일 값으로 변경
+      responseDto: 'Post'           // 단일 값으로 변경
     },
     { 
       name: 'updatePost', 
@@ -101,13 +109,17 @@ export default function NotionDetailPage() {
           name: service.name,
           purpose: service.purpose,
           returnValue: service.returnValue,
-          flowChart: service.flowChart
+          flowChart: service.flowChart,
+          inputDto: service.inputDto,
+          outputDto: service.outputDto
         })),
         controllers: controllerData.map(controller => ({
           name: controller.name,
           purpose: controller.purpose,
           returnValue: controller.returnValue,
-          validation: controller.validation
+          validation: controller.validation,
+          requestDto: controller.requestDto,
+          responseDto: controller.responseDto
         })),
         errors: errorData.map(error => ({
           name: error.name,
@@ -176,6 +188,8 @@ export default function NotionDetailPage() {
                 <th className="p-4 text-left text-white">사용 목적</th>
                 <th className="p-4 text-left text-white">반환값</th>
                 <th className="p-4 text-left text-white">서비스 흐름도</th>
+                <th className="p-4 text-left text-white">입력 DTO</th>
+                <th className="p-4 text-left text-white">출력 DTO</th>
                 <th className="p-4 text-left text-white">작업</th>
               </tr>
             </thead>
@@ -230,6 +244,42 @@ export default function NotionDetailPage() {
                     />
                   </td>
                   <td className="p-4">
+                    <select
+                      value={item.inputDto}
+                      onChange={(e) => {
+                        const newData = [...serviceData];
+                        newData[index].inputDto = e.target.value;
+                        setServiceData(newData);
+                      }}
+                      className="bg-gray-700 px-2 py-1 rounded text-white w-full"
+                    >
+                      <option value="">선택하세요</option>
+                      {variableData.map(dto => (
+                        <option key={dto.name} value={dto.name}>
+                          {dto.name}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td className="p-4">
+                    <select
+                      value={item.outputDto}
+                      onChange={(e) => {
+                        const newData = [...serviceData];
+                        newData[index].outputDto = e.target.value;
+                        setServiceData(newData);
+                      }}
+                      className="bg-gray-700 px-2 py-1 rounded text-white w-full"
+                    >
+                      <option value="">선택하세요</option>
+                      {variableData.map(dto => (
+                        <option key={dto.name} value={dto.name}>
+                          {dto.name}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td className="p-4">
                     <button
                       onClick={() => {
                         const newData = serviceData.filter((_, i) => i !== index);
@@ -249,7 +299,9 @@ export default function NotionDetailPage() {
               name: '', 
               purpose: '', 
               returnValue: '',
-              flowChart: ''
+              flowChart: '',
+              inputDto: '',
+              outputDto: ''
             }])}
             className="mt-4 px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600"
           >
@@ -267,6 +319,8 @@ export default function NotionDetailPage() {
                 <th className="p-4 text-left text-white">사용 목적</th>
                 <th className="p-4 text-left text-white">반환값</th>
                 <th className="p-4 text-left text-white">유효성 검사</th>
+                <th className="p-4 text-left text-white">요청 DTO</th>
+                <th className="p-4 text-left text-white">응답 DTO</th>
                 <th className="p-4 text-left text-white">작업</th>
               </tr>
             </thead>
@@ -321,6 +375,42 @@ export default function NotionDetailPage() {
                     />
                   </td>
                   <td className="p-4">
+                    <select
+                      value={item.requestDto}
+                      onChange={(e) => {
+                        const newData = [...controllerData];
+                        newData[index].requestDto = e.target.value;
+                        setControllerData(newData);
+                      }}
+                      className="bg-gray-700 px-2 py-1 rounded text-white w-full"
+                    >
+                      <option value="">선택하세요</option>
+                      {variableData.map(dto => (
+                        <option key={dto.name} value={dto.name}>
+                          {dto.name}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td className="p-4">
+                    <select
+                      value={item.responseDto}
+                      onChange={(e) => {
+                        const newData = [...controllerData];
+                        newData[index].responseDto = e.target.value;
+                        setControllerData(newData);
+                      }}
+                      className="bg-gray-700 px-2 py-1 rounded text-white w-full"
+                    >
+                      <option value="">선택하세요</option>
+                      {variableData.map(dto => (
+                        <option key={dto.name} value={dto.name}>
+                          {dto.name}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td className="p-4">
                     <button
                       onClick={() => {
                         const newData = controllerData.filter((_, i) => i !== index);
@@ -340,7 +430,9 @@ export default function NotionDetailPage() {
               name: '', 
               purpose: '', 
               returnValue: '',
-              validation: ''
+              validation: '',
+              requestDto: '',
+              responseDto: ''
             }])}
             className="mt-4 px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600"
           >
