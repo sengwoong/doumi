@@ -41,15 +41,7 @@ export default function ProjectPage() {
 
         <AddFileButton />
 
-        {/* 컨텍스트 메뉴 */}
-        {contextMenu && (
-          <ProjectContextMenu
-            projectId={contextMenu.projectId}
-            x={contextMenu.x}
-            y={contextMenu.y}
-            onClose={() => setContextMenu(null)}
-          />
-        )}
+   
       </div>
     );
   } catch (error) {

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import ProjectContextMenu from './ProjectContextMenu';
+import { useProjectStore } from '@/store/useProjectStore';
 
 interface Project {
   id: string;
@@ -23,6 +24,7 @@ export default function ProjectTable({ onProjectClick }: ProjectTableProps) {
     y: number;
     projectId: string;
   } | null>(null);
+  const { setNotionTitle } = useProjectStore();
 
   useEffect(() => {
     fetchProjects();
@@ -47,6 +49,11 @@ export default function ProjectTable({ onProjectClick }: ProjectTableProps) {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleProjectSelect = (project: Project) => {
+    onProjectClick(project.id);
+    setNotionTitle(`${project.name} 분석 문서`);
   };
 
   if (isLoading) {
@@ -99,7 +106,7 @@ export default function ProjectTable({ onProjectClick }: ProjectTableProps) {
           {projects.map((project) => (
             <tr 
               key={project.id}
-              onClick={() => onProjectClick(project.id)}
+              onClick={() => handleProjectSelect(project)}
               onContextMenu={(e) => handleContextMenu(e, project.id)}
               className="border-t border-gray-700 hover:bg-gray-700/50 transition-colors cursor-pointer"
             >
@@ -125,6 +132,7 @@ export default function ProjectTable({ onProjectClick }: ProjectTableProps) {
       {contextMenu && (
         <ProjectContextMenu
           projectId={contextMenu.projectId}
+          projectTitle={projects.find(p => p.id === contextMenu.projectId)?.name || ''}
           x={contextMenu.x}
           y={contextMenu.y}
           onClose={() => setContextMenu(null)}

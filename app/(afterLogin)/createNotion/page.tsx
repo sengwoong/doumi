@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useState } from 'react';
+
+import { useRouter } from 'next/navigation';
 import ProjectTable from '@/app/_components/ProjectTable';
+import { useProjectStore } from '@/store/useProjectStore';
 
 interface NotionSettings {
-  title: string;
   template: string;
   options: {
     serviceAnalysis: boolean;
@@ -15,12 +16,8 @@ interface NotionSettings {
 }
 
 export default function CreateNotionPage() {
-  const searchParams = useSearchParams();
-  const projectId = searchParams.get('projectId');
-  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(projectId);
-  const [projectName, setProjectName] = useState('');
+  const { notionTitle, projectId, setProjectId } = useProjectStore();
   const [settings, setSettings] = useState<NotionSettings>({
-    title: '',
     template: 'default',
     options: {
       serviceAnalysis: false,
@@ -29,21 +26,6 @@ export default function CreateNotionPage() {
     }
   });
   const router = useRouter();
-
-  useEffect(() => {
-    if (projectId) {
-      fetch(`/api/projects/${projectId}`)
-        .then(res => res.json())
-        .then(data => {
-          setProjectName(data.name);
-          setSettings(prev => ({
-            ...prev,
-            title: `${data.name} 분석 문서`
-          }));
-        })
-        .catch(console.error);
-    }
-  }, [projectId]);
 
   const handleSettingsChange = (
     field: keyof NotionSettings,
@@ -63,33 +45,22 @@ export default function CreateNotionPage() {
   };
 
   const handleExport = async () => {
-    if (!selectedProjectId || !settings.title) {
+    if (!notionTitle) {
       alert('프로젝트와 노션 페이지 제목을 선택해주세요.');
       return;
     }
 
     try {
-      const response = await fetch('/api/notion/export', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          projectId: selectedProjectId,
-          settings
-        }),
-      });
-
-      if (!response.ok) throw new Error('Export failed');
-
       alert('노션 페이지가 생성되었습니다!');
+      router.push(`/createNotion/${projectId}`);
     } catch (error) {
       console.error('Export error:', error);
-      alert('노션 페이지 생성 중 오류가 발생했습니다.');
+      alert('노션 페이지 이동 중 오류가 발생했습니다.');
     }
   };
 
   const handleProjectClick = (projectId: string) => {
+    setProjectId(projectId);
     router.push(`/projects/${projectId}`);
   };
 
@@ -100,9 +71,9 @@ export default function CreateNotionPage() {
           <h1 className="text-2xl font-bold text-white">노션 페이지 생성</h1>
           <button
             onClick={handleExport}
-            disabled={!selectedProjectId || !settings.title}
+            disabled={ !notionTitle}
             className={`nav-button min-w-[160px] ${
-              !selectedProjectId || !settings.title
+           !notionTitle
                 ? 'opacity-50 cursor-not-allowed hover:bg-gray-800'
                 : ''
             }`}
@@ -114,38 +85,29 @@ export default function CreateNotionPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* 왼쪽: 프로젝트 선택 */}
           <div className="lg:col-span-2 bg-gray-800/50 p-6 rounded-xl space-y-6">
-            {projectId ? (
-              <div className="text-lg font-semibold text-white">
-                선택된 프로젝트: {projectName}
-              </div>
-            ) : (
-              <>
-                <div className="flex justify-between items-center">
-                  <h2 className="text-lg font-semibold text-white">프로젝트 선택</h2>
-                  <div className="flex items-center space-x-4">
-                    <input
-                      type="text"
-                      placeholder="프로젝트 검색..."
-                      className="px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white 
-                        placeholder-gray-400 focus:outline-none focus:border-violet-500"
-                    />
-                    <select
-                      className="px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white 
-                        focus:outline-none focus:border-violet-500"
-                    >
-                      <option value="all">모든 상태</option>
-                      <option value="pending">제작중</option>
-                      <option value="completed">완료</option>
-                    </select>
-                  </div>
-                </div>
-                <ProjectTable
-                  onSelect={setSelectedProjectId} 
-                  selected={selectedProjectId}
-                  onProjectClick={handleProjectClick}
+            <div className="flex justify-between items-center">
+              <h2 className="text-lg font-semibold text-white">프로젝트 선택</h2>
+              <div className="flex items-center space-x-4">
+                <input
+                  type="text"
+                  placeholder="프로젝트 검색..."
+                  className="px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white 
+                    placeholder-gray-400 focus:outline-none focus:border-violet-500"
                 />
-              </>
-            )}
+                <select
+                  className="px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white 
+                    focus:outline-none focus:border-violet-500"
+                >
+                  <option value="all">모든 상태</option>
+                  <option value="pending">제작중</option>
+                  <option value="completed">완료</option>
+                </select>
+              </div>
+            </div>
+
+            <ProjectTable
+              onProjectClick={handleProjectClick}
+            />
           </div>
 
           {/* 오른쪽: 노션 설정 (Fixed) */}
@@ -159,14 +121,9 @@ export default function CreateNotionPage() {
                     <label className="block text-sm font-medium text-gray-300 mb-2">
                       노션 페이지 제목
                     </label>
-                    <input
-                      type="text"
-                      value={settings.title}
-                      onChange={(e) => handleSettingsChange('title', e.target.value)}
-                      placeholder="페이지 제목 입력..."
-                      className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white 
-                        placeholder-gray-400 focus:outline-none focus:border-violet-500"
-                    />
+                    <div className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white">
+                      {notionTitle || '프로젝트를 선택해주세요'}
+                    </div>
                   </div>
 
                   <div>

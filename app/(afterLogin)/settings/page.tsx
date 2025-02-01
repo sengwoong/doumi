@@ -7,8 +7,22 @@ import { Input } from '@/app/_components/settings/Input';
 import { Button } from '@/app/_components/settings/Button';
 import { useSettingsStore } from '@/store/useSettingsStore';
 import { Tabs } from '@/app/_components/settings/Tabs';
+import { useRouter } from 'next/navigation';
+import { useProjectStore } from '@/store/useProjectStore';
+import { useRef, useEffect } from 'react';
+
+interface ContextMenuProps {
+  projectId: string;
+  projectTitle: string;
+  x: number;
+  y: number;
+  onClose: () => void;
+}
+
 export default function SettingsPage() {
   const { activeTab } = useSettingsStore();
+  const router = useRouter();
+  const { setNotionTitle } = useProjectStore();
   
   // 나머지 상태들
   const [nickname, setNickname] = useState('');
@@ -40,6 +54,24 @@ export default function SettingsPage() {
     }
     // API 호출
     console.log('비밀번호 변경');
+  };
+
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        onClose();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleNotionExport = () => {
+    setNotionTitle(projectTitle);
+    router.push(`/createNotion?projectId=${projectId}`);
   };
 
   return (
