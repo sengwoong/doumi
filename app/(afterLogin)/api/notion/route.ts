@@ -112,7 +112,7 @@ export async function POST(request: Request) {
           object: 'block',
           type: 'table',
           table: {
-            table_width: 6,
+            table_width: 4,
             has_column_header: true,
             children: [
               {
@@ -122,9 +122,7 @@ export async function POST(request: Request) {
                     [createTextCell('메소드명')],
                     [createTextCell('사용 목적')],
                     [createTextCell('반환값')],
-                    [createTextCell('서비스 흐름도')],
-                    [createTextCell('입력 DTO')],
-                    [createTextCell('출력 DTO')]
+                    [createTextCell('서비스 흐름도')]
                   ]
                 }
               },
@@ -135,9 +133,7 @@ export async function POST(request: Request) {
                     [createTextCell(service.name)],
                     [createTextCell(service.purpose)],
                     [createTextCell(service.returnValue)],
-                    [createTextCell(service.flowChart)],
-                    createLinkCell(service.inputDto, dtoPages.get(service.inputDto)),
-                    createLinkCell(service.outputDto, dtoPages.get(service.outputDto))
+                    [createTextCell(service.flowChart)]
                   ]
                 }
               }))
@@ -159,7 +155,7 @@ export async function POST(request: Request) {
           object: 'block',
           type: 'table',
           table: {
-            table_width: 6,
+            table_width: 4,
             has_column_header: true,
             children: [
               {
@@ -169,9 +165,7 @@ export async function POST(request: Request) {
                     [createTextCell('메소드명')],
                     [createTextCell('사용 목적')],
                     [createTextCell('반환값')],
-                    [createTextCell('유효성 검사')],
-                    [createTextCell('요청 DTO')],
-                    [createTextCell('응답 DTO')]
+                    [createTextCell('유효성 검사')]
                   ]
                 }
               },
@@ -182,9 +176,7 @@ export async function POST(request: Request) {
                     [createTextCell(controller.name)],
                     [createTextCell(controller.purpose)],
                     [createTextCell(controller.returnValue)],
-                    [createTextCell(controller.validation)],
-                    createLinkCell(controller.requestDto, dtoPages.get(controller.requestDto)),
-                    createLinkCell(controller.responseDto, dtoPages.get(controller.responseDto))
+                    [createTextCell(controller.validation)]
                   ]
                 }
               }))
@@ -206,7 +198,7 @@ export async function POST(request: Request) {
           object: 'block',
           type: 'table',
           table: {
-            table_width: 6,
+            table_width: 4,
             has_column_header: true,
             children: [
               {
@@ -216,37 +208,21 @@ export async function POST(request: Request) {
                     [createTextCell('DTO명')],
                     [createTextCell('사용한 위치')],
                     [createTextCell('사용 목적')],
-                    [createTextCell('포함된 속성')],
-                    [createTextCell('입력으로 사용하는 서비스/컨트롤러')],
-                    [createTextCell('출력으로 사용하는 서비스/컨트롤러')]
+                    [createTextCell('포함된 속성')]
                   ]
                 }
               },
-              ...(data.variables || []).map((variable: any) => {
-                const usedAsInput = [
-                  ...data.services.filter(s => s.inputDto === variable.name).map(s => `Service: ${s.name}`),
-                  ...data.controllers.filter(c => c.requestDto === variable.name).map(c => `Controller: ${c.name}`)
-                ].join(', ');
-                
-                const usedAsOutput = [
-                  ...data.services.filter(s => s.outputDto === variable.name).map(s => `Service: ${s.name}`),
-                  ...data.controllers.filter(c => c.responseDto === variable.name).map(c => `Controller: ${c.name}`)
-                ].join(', ');
-
-                return {
-                  type: 'table_row',
-                  table_row: {
-                    cells: [
-                      createLinkCell(variable.name, dtoPages.get(variable.name)),
-                      [createTextCell(variable.location)],
-                      [createTextCell(variable.purpose)],
-                      [createTextCell(variable.properties)],
-                      [createTextCell(usedAsInput || '-')],
-                      [createTextCell(usedAsOutput || '-')]
-                    ]
-                  }
-                };
-              })
+              ...(data.variables || []).map((variable: any) => ({
+                type: 'table_row',
+                table_row: {
+                  cells: [
+                    [createTextCell(variable.name)],
+                    [createTextCell(variable.location)],
+                    [createTextCell(variable.purpose)],
+                    [createTextCell(variable.properties)]
+                  ]
+                }
+              }))
             ]
           }
         }

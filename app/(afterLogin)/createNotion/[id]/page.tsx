@@ -2,14 +2,13 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import LoadingSpinner from '@/app/_components/LoadingSpinner';
 
 interface ServiceData {
   name: string;
   purpose: string;
   returnValue: string;
   flowChart: string;  // 서비스 흐름도
-  inputDto: string;    // 단일 입력 DTO
-  outputDto: string;   // 단일 출력 DTO
 }
 
 interface ControllerData {
@@ -17,8 +16,6 @@ interface ControllerData {
   purpose: string;
   returnValue: string;
   validation: string;  // 유효성 검사 항목  
-  requestDto: string;   // 단일 요청 DTO
-  responseDto: string;  // 단일 응답 DTO
 }
 
 interface ErrorData {
@@ -36,14 +33,13 @@ interface VariableData {
 
 export default function NotionDetailPage() {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
   const [serviceData, setServiceData] = useState<ServiceData[]>([
     { 
       name: 'createPost', 
       purpose: '새로운 게시글을 생성하고 저장',
       returnValue: 'Post',
-      flowChart: '1. postId 유효성 검사\n2. 사용자 권한 확인\n3. 게시글 저장\n4. 결과 반환',
-      inputDto: 'PostCreateReq',    // 단일 값으로 변경
-      outputDto: 'Post'            // 단일 값으로 변경
+      flowChart: '1. postId 유효성 검사\n2. 사용자 권한 확인\n3. 게시글 저장\n4. 결과 반환'
     }
   ]);
   const [controllerData, setControllerData] = useState<ControllerData[]>([
@@ -51,9 +47,7 @@ export default function NotionDetailPage() {
       name: 'createPost', 
       purpose: '포스트 생성을 위한 컨트롤러',
       returnValue: 'ResponseEntity<Post>',
-      validation: '- title: 최소 2자\n- content: 최소 10자\n- category: Not Null',
-      requestDto: 'PostCreateReq',   // 단일 값으로 변경
-      responseDto: 'Post'           // 단일 값으로 변경
+      validation: '- title: 최소 2자\n- content: 최소 10자\n- category: Not Null'
     },
     { 
       name: 'updatePost', 
@@ -103,6 +97,8 @@ export default function NotionDetailPage() {
 
   const handleSubmit = async () => {
     try {
+      setIsLoading(true); // 로딩 시작
+
       // 노션에 보낼 데이터 구조화
       const notionData = {
         services: serviceData.map(service => ({
@@ -110,16 +106,12 @@ export default function NotionDetailPage() {
           purpose: service.purpose,
           returnValue: service.returnValue,
           flowChart: service.flowChart,
-          inputDto: service.inputDto,
-          outputDto: service.outputDto
         })),
         controllers: controllerData.map(controller => ({
           name: controller.name,
           purpose: controller.purpose,
           returnValue: controller.returnValue,
           validation: controller.validation,
-          requestDto: controller.requestDto,
-          responseDto: controller.responseDto
         })),
         errors: errorData.map(error => ({
           name: error.name,
@@ -134,7 +126,6 @@ export default function NotionDetailPage() {
         }))
       };
 
-      // 노션 API 엔드포인트로 데이터 전송
       const response = await fetch('/api/notion', {
         method: 'POST',
         headers: {
@@ -149,11 +140,12 @@ export default function NotionDetailPage() {
 
       const result = await response.json();
       alert('노션 페이지가 생성되었습니다!');
-      // 생성된 노션 페이지로 이동 (선택사항)
       window.open(result.url, '_blank');
     } catch (error) {
       console.error('노션 전송 중 오류 발생:', error);
       alert('노션 페이지 생성 중 오류가 발생했습니다.');
+    } finally {
+      setIsLoading(false); // 로딩 종료
     }
   };
 
@@ -162,21 +154,41 @@ export default function NotionDetailPage() {
       <div className="max-w-7xl mx-auto space-y-8">
         <div className="flex justify-between items-center">
           <h1 className="text-2xl font-bold text-white">노션 분석 결과</h1>
-          <div className="space-x-4">
+          <div className="flex items-center gap-4">
             <button
               onClick={handleSave}
-              className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600"
+              className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 min-w-[100px]"
             >
               저장하기
             </button>
             <button
               onClick={handleSubmit}
-              className="px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600"
+              disabled={isLoading}
+              className={`px-4 py-2 bg-gray-700 text-white rounded-lg 
+                ${isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-600'} 
+                flex items-center justify-center min-w-[140px]`}
             >
-              노션으로 보내기
+              {isLoading ? (
+                <>
+                  <LoadingSpinner size="sm" className="-ml-1 mr-3" />
+                  <span>노션으로 보내는 중...</span>
+                </>
+              ) : (
+                <span>노션으로 보내기</span>
+              )}
             </button>
           </div>
         </div>
+
+        {/* 로딩 오버레이 */}
+        {isLoading && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-gray-800 p-6 rounded-lg flex items-center space-x-4">
+              <LoadingSpinner size="lg" />
+              <span className="text-white text-lg">노션 페이지 생성 중...</span>
+            </div>
+          </div>
+        )}
 
         {/* 서비스 테이블 */}
         <div className="bg-gray-800/50 p-6 rounded-xl">
@@ -188,8 +200,6 @@ export default function NotionDetailPage() {
                 <th className="p-4 text-left text-white">사용 목적</th>
                 <th className="p-4 text-left text-white">반환값</th>
                 <th className="p-4 text-left text-white">서비스 흐름도</th>
-                <th className="p-4 text-left text-white">입력 DTO</th>
-                <th className="p-4 text-left text-white">출력 DTO</th>
                 <th className="p-4 text-left text-white">작업</th>
               </tr>
             </thead>
@@ -244,42 +254,6 @@ export default function NotionDetailPage() {
                     />
                   </td>
                   <td className="p-4">
-                    <select
-                      value={item.inputDto}
-                      onChange={(e) => {
-                        const newData = [...serviceData];
-                        newData[index].inputDto = e.target.value;
-                        setServiceData(newData);
-                      }}
-                      className="bg-gray-700 px-2 py-1 rounded text-white w-full"
-                    >
-                      <option value="">선택하세요</option>
-                      {variableData.map(dto => (
-                        <option key={dto.name} value={dto.name}>
-                          {dto.name}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-                  <td className="p-4">
-                    <select
-                      value={item.outputDto}
-                      onChange={(e) => {
-                        const newData = [...serviceData];
-                        newData[index].outputDto = e.target.value;
-                        setServiceData(newData);
-                      }}
-                      className="bg-gray-700 px-2 py-1 rounded text-white w-full"
-                    >
-                      <option value="">선택하세요</option>
-                      {variableData.map(dto => (
-                        <option key={dto.name} value={dto.name}>
-                          {dto.name}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-                  <td className="p-4">
                     <button
                       onClick={() => {
                         const newData = serviceData.filter((_, i) => i !== index);
@@ -299,9 +273,7 @@ export default function NotionDetailPage() {
               name: '', 
               purpose: '', 
               returnValue: '',
-              flowChart: '',
-              inputDto: '',
-              outputDto: ''
+              flowChart: ''
             }])}
             className="mt-4 px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600"
           >
@@ -319,8 +291,6 @@ export default function NotionDetailPage() {
                 <th className="p-4 text-left text-white">사용 목적</th>
                 <th className="p-4 text-left text-white">반환값</th>
                 <th className="p-4 text-left text-white">유효성 검사</th>
-                <th className="p-4 text-left text-white">요청 DTO</th>
-                <th className="p-4 text-left text-white">응답 DTO</th>
                 <th className="p-4 text-left text-white">작업</th>
               </tr>
             </thead>
@@ -375,42 +345,6 @@ export default function NotionDetailPage() {
                     />
                   </td>
                   <td className="p-4">
-                    <select
-                      value={item.requestDto}
-                      onChange={(e) => {
-                        const newData = [...controllerData];
-                        newData[index].requestDto = e.target.value;
-                        setControllerData(newData);
-                      }}
-                      className="bg-gray-700 px-2 py-1 rounded text-white w-full"
-                    >
-                      <option value="">선택하세요</option>
-                      {variableData.map(dto => (
-                        <option key={dto.name} value={dto.name}>
-                          {dto.name}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-                  <td className="p-4">
-                    <select
-                      value={item.responseDto}
-                      onChange={(e) => {
-                        const newData = [...controllerData];
-                        newData[index].responseDto = e.target.value;
-                        setControllerData(newData);
-                      }}
-                      className="bg-gray-700 px-2 py-1 rounded text-white w-full"
-                    >
-                      <option value="">선택하세요</option>
-                      {variableData.map(dto => (
-                        <option key={dto.name} value={dto.name}>
-                          {dto.name}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-                  <td className="p-4">
                     <button
                       onClick={() => {
                         const newData = controllerData.filter((_, i) => i !== index);
@@ -430,9 +364,7 @@ export default function NotionDetailPage() {
               name: '', 
               purpose: '', 
               returnValue: '',
-              validation: '',
-              requestDto: '',
-              responseDto: ''
+              validation: ''
             }])}
             className="mt-4 px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600"
           >
